@@ -13,6 +13,7 @@ from semantic_release.errors import GitError, ImproperConfigurationError
 
 from .changelog import markdown_changelog
 from .dist import build_dists, remove_dists, should_build, should_remove_dist
+from .helpers import set_github_action_outputs
 from .history import (
     evaluate_version_bump,
     get_current_release_version,
@@ -305,6 +306,57 @@ def changelog(*, unreleased=False, noop=False, post=False, prerelease=False, **k
             logger.error("Missing token: cannot post changelog to HVCS")
 
 
+def github(
+    retry: bool = False,
+    noop: bool = False,
+    prerelease: bool = False,
+    prerelease_patch=True,
+    **kwargs,
+):
+    """Run the version task, then push information to github actions output."""
+
+    current_version = get_current_version()
+    current_release_version = get_current_release_version()
+
+    if retry:
+        logger.info("Retry is on")
+        # The "new" version will actually be the current version, and the
+        # "current" version will be the previous version.
+        level_bump = None
+        new_version = current_version
+        current_version = get_previous_release_version(current_version)
+    else:
+        # Calculate the new version
+        level_bump = evaluate_version_bump(
+            current_release_version, kwargs.get("force_level")
+        )
+        new_version = get_new_version(
+            current_version,
+            current_release_version,
+            level_bump,
+            prerelease,
+            prerelease_patch,
+        )
+
+    should_bump = should_bump_version(
+        current_version=current_version,
+        new_version=new_version,
+        current_release_version=current_release_version,
+        prerelease=prerelease,
+        retry=retry,
+        noop=noop,
+    )
+
+    set_github_action_outputs(
+        {
+            "current_version": current_version,
+            "current_release_version": current_release_version,
+            "new_version": new_version,
+            "should_bump": should_bump,
+        }
+    )
+
+
 def publish(
     retry: bool = False,
     noop: bool = False,
@@ -492,6 +544,16 @@ def main(**kwargs):
 def cmd_publish(**kwargs):
     try:
         return publish(**kwargs)
+    except Exception as error:
+        logger.error(filter_output_for_secrets(str(error)))
+        exit(1)
+
+
+@main.command(name="github", help=github.__doc__)
+@common_options
+def cmd_github(**kwargs):
+    try:
+        return github(**kwargs)
     except Exception as error:
         logger.error(filter_output_for_secrets(str(error)))
         exit(1)
