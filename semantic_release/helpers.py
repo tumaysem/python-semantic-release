@@ -1,5 +1,6 @@
 import functools
-from typing import Union
+import os
+from typing import Dict, Union
 
 from requests import Session
 from requests.adapters import HTTPAdapter
@@ -75,3 +76,21 @@ class LoggedFunction:
             return result
 
         return logged_func
+
+
+def set_github_action_outputs(output: Dict[str, str]):
+    """Sets the GitHub Action outputs if running as a GitHub Action,
+    and otherwise logs these to terminal if running in CLI mode. Note
+    that if the CLI mode is used within a GitHub Actions
+    workflow, it will be treated the same as GitHub Actions mode.
+
+    Keyword arguments:
+    output_pairs - Dictionary of outputs with values
+    """
+    if "GITHUB_OUTPUT" in os.environ:
+        with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+            for key in output:
+                print("{0}={1}".format(key, output[key]), file=f)
+    else:
+        for key in output:
+            print("{0}={1}".format(key, output[key]))
