@@ -85,6 +85,11 @@ COMMON_OPTIONS = [
         help="No-operations mode, finds the new version number without changing it.",
     ),
     click.option(
+        "--github",
+        is_flag=True,
+        help="Set version info to github actions output.",
+    ),
+    click.option(
         "--define",
         "-D",
         multiple=True,
@@ -361,6 +366,7 @@ def publish(
     noop: bool = False,
     prerelease: bool = False,
     prerelease_patch=True,
+    github=False,
     **kwargs,
 ):
     """Run the version task, then push to git and upload to an artifact repository / GitHub Releases."""
@@ -475,6 +481,14 @@ def publish(
         if should_remove_dist():
             logger.info("Removing distribution files")
             remove_dists(dist_path)
+
+        if github:
+            set_github_action_outputs(
+                {
+                    "published_version": new_version,
+                    "published": True,
+                }
+            )
 
         logger.info("Publish has finished")
 
