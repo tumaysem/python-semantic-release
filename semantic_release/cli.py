@@ -7,6 +7,7 @@ from pathlib import Path
 
 import click
 import click_log
+from semver import VersionInfo
 
 from semantic_release import ci_checks
 from semantic_release.errors import GitError, ImproperConfigurationError
@@ -483,9 +484,13 @@ def publish(
             remove_dists(dist_path)
 
         if github:
+            published_version = VersionInfo.parse(new_version)
             set_github_action_outputs(
                 {
                     "published_version": new_version,
+                    "published_version_major": published_version.major,
+                    "published_version_minor": published_version.minor,
+                    "published_version_patch": published_version.patch,
                     "published": True,
                 }
             )
