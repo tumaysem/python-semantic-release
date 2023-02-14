@@ -36,6 +36,18 @@ inputs:
     description: 'The ssh private key used to sign commits'
     required: false
 
+outputs:
+  published:
+    description: ' "True" if new version is published (pushed a new semver tag to repository).'
+  published_version:
+    description: 'Published semver version. [major].[minor].[patch]'
+  published_version_major:
+    description: 'Major part of the published semver version.'
+  published_version_minor:
+    description: 'Minor part of the published semver version.'
+  published_version_patch:
+    description: 'Patch part of the published semver version.'
+
 runs:
   using: 'docker'
   image: 'Dockerfile'
