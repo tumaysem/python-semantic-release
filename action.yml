@@ -47,6 +47,14 @@ outputs:
     description: 'Minor part of the published semver version.'
   published_version_patch:
     description: 'Patch part of the published semver version.'
+  should_bump:
+    description: ' "True" if new version will be published.'
+  current_version:
+    description: 'Current version.'
+  current_release_version:
+    description: 'Current release version.'
+  new_version:
+    description: 'New version'
 
 runs:
   using: 'docker'
