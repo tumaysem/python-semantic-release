@@ -51,7 +51,7 @@ outputs:
     description: ' "True" if new version will be published.'
   current_version:
     description: 'Current version.'
-  current_release_version: 
+  current_release_version:
     description: 'Current release version.'
   new_version:
     description: 'New version'
