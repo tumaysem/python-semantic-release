@@ -405,14 +405,26 @@ def publish(
     ci_checks.check(branch)
     checkout(branch)
 
-    if should_bump_version(
+    should_bump = should_bump_version(
         current_version=current_version,
         new_version=new_version,
         current_release_version=current_release_version,
         prerelease=prerelease,
         retry=retry,
         noop=noop,
-    ):
+    )
+
+    if github:
+        set_github_action_outputs(
+            {
+                "current_version": current_version,
+                "current_release_version": current_release_version,
+                "new_version": new_version,
+                "should_bump": should_bump,
+            }
+        )
+
+    if should_bump:
         log = generate_changelog(current_version)
         changelog_md = markdown_changelog(
             owner,
