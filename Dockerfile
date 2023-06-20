@@ -3,13 +3,13 @@ FROM python:3.10
 
 RUN set -ex; \
     apt-get update; \
-    apt-get install -y --no-install-recommends \
+    apt-get install -y --no-install-recommends --allow-downgrades \
     git-lfs
 
 #install backported stable vesion of git, which supports ssh signing
 RUN echo "deb http://deb.debian.org/debian bullseye-backports main" >> /etc/apt/sources.list; \
     apt-get update;\
-    apt-get install -y git/bullseye-backports
+    apt-get install -y --allow-downgrades git/bullseye-backports
 
 ENV PYTHONPATH /semantic-release
 
